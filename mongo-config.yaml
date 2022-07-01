@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-express-configmap
+data:
+  database_url: mongodb-internal-service   # just Internal Service name of mongdb.
+  
+
+
+
+  # ConfigMap store Data Values in CENTRALIZED Place where Multiple applications Using 
+  #.. values can Refer this ConfigMap. If 2 web-app servers like mongo-express and adminer
+  # .. access the mongodb pod, then Pod's IP address should be specified in each web-app
+  # .. deployment.yaml file. like wise, if 10 servers access the mongodb-pod, in 10
+  # ..yaml deployment files it should be specified.
+
+  # To Avoid this repititve task, we place such addresses, values - which are mostly used
+  # by all Pods/Deployments, in ONE-CENTRAL PLACE CAlled - ConfigMap.
+

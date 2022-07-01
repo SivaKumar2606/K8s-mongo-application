@@ -1,0 +1,54 @@
+--- # Both Deployment and Service are together in 1 file.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express-deployment
+spec:
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: mongo-express
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongodb-root-username
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongodb-root-password
+        - name: ME_CONFIG_MONGODB_SERVER
+          valueFrom:
+            configMapKeyRef:
+              name: mongo-express-configmap
+              key: database_url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-external-service
+spec:
+  selector:
+    app: mongo-express
+  type: LoadBalancer   # Specifying this only makes this Service as "EXTERNAL".
+  ports:
+  - protocol: TCP
+    port: 8081         # This port Opens at Container level comes with Image.
+    targetPort: 8081   # This Port Opens at POD level for Internal Service Requests.
+    nodePort: 30001    # This Port opens at Service level for External Requests.
+
+# Every Internal Service also Acts as load balancer, but k8s kept a Bad-Naming Convention
+#.. for referring a Service as EXTERNAL using "type: LoadBalancer".
+
+# type: LoadBalancer --- Assings a Service An "EXTERNAL IP Address" and Accepts EXTERNAL Requests.
